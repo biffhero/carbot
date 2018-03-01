@@ -6,8 +6,10 @@ where is the ___
 what does ___ have
 I have the ___
 I took the ___
+I returned the ___
 ___ has the ___
 ___ took the ___
+___ returned the ___
 add name ___
 add car ___
 delete name ___
