@@ -135,6 +135,52 @@ def update_I(INVENTORY, NAMES, username, command):
 			response = 'I do not know you'
 	return response
 
+def return_carI(INVENTORY, NAMES, username, command):
+	for name in NAMES:
+		if name == username:
+			for car in INVENTORY:
+				if command.startswith('I returned the ' + car):
+					if INVENTORY[car] == username:
+						INVENTORY[car] = None
+						update_inventory(INVENTORY)
+						response = 'Recoreded ' + username + ' returned the ' + car
+						break
+					else:
+						if len(INVENTORY[car]) == 0:
+							response = 'You do not currenty have the ' + car + '. Nobody currently has the ' + car
+						else:
+							response = 'You do not currenty have the ' + car + '. ' + INVENTORY[car] + ' currently has the ' + car
+					break
+				else:
+					response = 'That car is not in the car list'
+			break
+		else:
+			response = 'I do not know you'
+	return response
+
+def return_car(INVENTORY, NAMES, command):
+	for name in NAMES:
+		if command.startswith(name + ' returned the'):
+			for car in INVENTORY:
+				if command.startswith(name + ' returned the ' + car):
+					if INVENTORY[car] == name:
+						INVENTORY[car] = None
+						update_inventory(INVENTORY)
+						response = 'Recorded ' + name + ' retuned the ' + car
+						break
+					else:
+						if len(INVENTORY[car]) == 0:
+							response = name + ' does not currently have the ' + car + '. Nobody currently has the ' + car
+						else:
+							response = name + ' does not currently have the ' +  car + '. ' + INVENTORY[car] + ' currently has the ' + car
+					break
+				else:
+					response = 'That car is not in the list'
+			break
+		else:
+			response = 'I do not know that person.'
+	return response
+
 def update_owner(INVENTORY, NAMES, command):
 	for name in NAMES:
 		if (command.startswith(name + ' has the')) or (command.startswith(name + ' took the')):
@@ -208,9 +254,15 @@ def handle_messages(event):
 		reply = delete_name(NAMES, message)
 		response = reply
 
-	# update inventory 
+	# update inventory - checkout
 	elif (message.startswith('I took')) or (message.startswith('I have')):
 		reply = update_I(INVENTORY, NAMES, username, message)
+		response = reply
+
+	# update inventory - checkin
+	elif message.startswith('I returned the'):
+		print('I return')
+		reply = return_carI(INVENTORY, NAMES, username, message)
 		response = reply
 
 	# find car
@@ -223,9 +275,14 @@ def handle_messages(event):
 		reply = find_name(INVENTORY, NAMES, message)
 		response = reply
 
-	# update inventory
+	# update inventory - checkout
 	elif (re.match('^[a-zA-Z]+.* has the', message)) or (re.match('^[a-zA-Z]+.* took the', message)):
 		reply = update_owner(INVENTORY, NAMES, message)
+		response = reply
+# 3333333
+	# update inventory - checkin
+	elif re.match('^[a-zA-Z]+.* returned the', message):
+		reply = return_car(INVENTORY, NAMES, message)
 		response = reply
 
 	# add name
@@ -284,7 +341,7 @@ def handle_bot_command(command, channel, user):
 
 	# Default response is help text for the user
 	default_response = "Not sure what you mean. Try {} for a list of different commands".format(EXAMPLE_COMMAND)
-	
+
 	# Finds and executes the given command, filling in response
 	response = None
 
@@ -313,9 +370,20 @@ def handle_bot_command(command, channel, user):
 		reply = update_I(INVENTORY, NAMES, USERNAME, command)
 		response = reply
 
+	# update inventory - checkin
+	elif command.startswith('I returned'):
+		print('I return')
+		reply = return_carI(INVENTORY, NAMES, USERNAME, command)
+		response = reply
+
 	# update INVENTORY
 	elif(re.match('^[a-zA-Z]+.* has the', command)) or (re.match('^[a-zA-Z]+.* took the', command)):
 		reply = update_owner(INVENTORY, NAMES, command)
+		response = reply
+# 3333333
+	# update inventory - checkin
+	elif re.match('^[a-zA-Z]+.* returned the', command):
+		reply = return_car(INVENTORY, NAMES, command)
 		response = reply
 
 	# add name
