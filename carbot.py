@@ -11,7 +11,7 @@ starterbot_id = None
 
 # constants
 RTM_READ_DELAY = 1 # 1 second delay between reading from the RTM
-MENTION_REGEX = '^<@(|[WU].+?)>(.*)'
+MENTION_REGEX = '<@(|[WU].+?)>(.*)'
 EXAMPLE_COMMAND = "*'who has ___'* to find a car or *'commands list'*"
 
 def get_names():
@@ -229,6 +229,19 @@ def handle_messages(event):
 	username = user['user']['profile']['display_name']
 	message = event['text']
 
+	# replace @user_id with username in message
+	direct_mention = re.search(MENTION_REGEX, message)
+	if direct_mention:
+		print('direct mention')
+		at_user_id = direct_mention.group(1)
+		at_user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = at_user_id)
+		at_username = at_user['user']['profile']['display_name']
+		print('at_username ' , at_username)
+		x = '<@' + at_user_id + '>'
+		print('x= ' ,x)
+		message = message.replace(x, at_username)
+		print('new message = ' + message)
+
 	# command list
 	if message.startswith('commands list'):
 		commands = commands_list()
@@ -261,7 +274,6 @@ def handle_messages(event):
 
 	# update inventory - checkin
 	elif message.startswith('I returned the'):
-		print('I return')
 		reply = return_carI(INVENTORY, NAMES, username, message)
 		response = reply
 
@@ -279,7 +291,7 @@ def handle_messages(event):
 	elif (re.match('^[a-zA-Z]+.* has the', message)) or (re.match('^[a-zA-Z]+.* took the', message)):
 		reply = update_owner(INVENTORY, NAMES, message)
 		response = reply
-# 3333333
+
 	# update inventory - checkin
 	elif re.match('^[a-zA-Z]+.* returned the', message):
 		reply = return_car(INVENTORY, NAMES, message)
@@ -314,6 +326,8 @@ def parse_bot_commands(slack_events):
 	for event in slack_events:
 		if event['type'] == 'message' and not 'subtype' in event:
 			user_id, message = parse_direct_mention(event['text'])
+			print('@id', user_id)
+			print('message ', message)
 			if user_id == starterbot_id:
 				user = event['user']
 				# return message, event['channel']
@@ -372,7 +386,6 @@ def handle_bot_command(command, channel, user):
 
 	# update inventory - checkin
 	elif command.startswith('I returned'):
-		print('I return')
 		reply = return_carI(INVENTORY, NAMES, USERNAME, command)
 		response = reply
 
@@ -380,7 +393,7 @@ def handle_bot_command(command, channel, user):
 	elif(re.match('^[a-zA-Z]+.* has the', command)) or (re.match('^[a-zA-Z]+.* took the', command)):
 		reply = update_owner(INVENTORY, NAMES, command)
 		response = reply
-# 3333333
+
 	# update inventory - checkin
 	elif re.match('^[a-zA-Z]+.* returned the', command):
 		reply = return_car(INVENTORY, NAMES, command)
