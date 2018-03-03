@@ -14,6 +14,18 @@ RTM_READ_DELAY = 1 # 1 second delay between reading from the RTM
 MENTION_REGEX = '<@(|[WU].+?)>(.*)'
 EXAMPLE_COMMAND = "*'who has ___'* to find a car or *'commands list'*"
 
+def at_user(direct_mention, command):
+	print('direct mention')
+	at_user_id = direct_mention.group(1)
+	at_user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = at_user_id)
+	at_username = at_user['user']['profile']['display_name']
+	print('at_username ' , at_username)
+	x = '<@' + at_user_id + '>'
+	print('x= ' ,x)
+	command = command.replace(x, at_username)
+	print('new message = ' + command)
+	return command
+
 def get_names():
 	path = 'names.txt'
 	name_file = open(path, 'r')
@@ -232,15 +244,7 @@ def handle_messages(event):
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, message)
 	if direct_mention:
-		print('direct mention')
-		at_user_id = direct_mention.group(1)
-		at_user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = at_user_id)
-		at_username = at_user['user']['profile']['display_name']
-		print('at_username ' , at_username)
-		x = '<@' + at_user_id + '>'
-		print('x= ' ,x)
-		message = message.replace(x, at_username)
-		print('new message = ' + message)
+		message = at_user(direct_mention, message)
 
 	# command list
 	if message.startswith('commands list'):
@@ -326,8 +330,8 @@ def parse_bot_commands(slack_events):
 	for event in slack_events:
 		if event['type'] == 'message' and not 'subtype' in event:
 			user_id, message = parse_direct_mention(event['text'])
-			print('@id', user_id)
-			print('message ', message)
+			# print('@id', user_id)
+			# print('message ', message)
 			if user_id == starterbot_id:
 				user = event['user']
 				# return message, event['channel']
@@ -352,6 +356,12 @@ def handle_bot_command(command, channel, user):
 	NAMES = get_names()
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = user)
 	USERNAME = user['user']['profile']['display_name']
+
+	print('command = ', command)
+	# replace @user_id with username in message
+	direct_mention = re.search(MENTION_REGEX, command)
+	if direct_mention:
+		command = at_user(direct_mention, command)
 
 	# Default response is help text for the user
 	default_response = "Not sure what you mean. Try {} for a list of different commands".format(EXAMPLE_COMMAND)
