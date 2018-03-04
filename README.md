@@ -6,4 +6,6 @@ You will need to have a Slack account and create a Slack App to receive an API t
 
 `export SLACK_BOT_TOKEN='your bot user access token here'`
 
-Once you are done coding, you will need to invite your bot to the Slack channel where you want to use it.
+You will also need to create 2 files: `names.txt` and `inventory.txt`. These files store the users' names and who has what car.
+
+In order to use your bot, you will need to invite it to the Slack channel where you want to use it.
