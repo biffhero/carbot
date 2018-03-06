@@ -67,14 +67,23 @@ def car_list():
 	inventory_file = open(path, 'r')
 	inventory = inventory_file.read()
 	inventory_file.close()
-	return inventory
+	if inventory == '':
+		response = 'There are currently no cars on the list. If you would like to add a car, the command is {}.'.format('*add car*')
+	else:
+		response = inventory
+	return response
 
 def names_list():
 	path = 'names.txt'
 	name_file = open(path, 'r')
 	names = name_file.read()
 	name_file.close()
-	return names
+	if names == '':
+		response = 'There are currently no names on the list. If you would like to add a name, the command is {}.'.format('*add name*')
+	else:
+		response = names
+
+	return response
 
 def commands_list():
 	path = 'commands.txt'
@@ -240,6 +249,7 @@ def handle_messages(event):
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = event['user'])
 	username = user['user']['profile']['display_name']
 	message = event['text']
+	message = message.lower()
 
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, message)
@@ -253,13 +263,13 @@ def handle_messages(event):
 
 	# car list
 	elif message.startswith('car list'):
-		inventory = car_list()
-		response = inventory
+		reply = car_list()
+		response = reply
 
 	# name list
 	elif (message.startswith('names list')) or (message.startswith('name list')):
-		names = names_list()
-		response = names
+		reply = names_list()
+		response = reply
 
 	# delete car
 	elif message.startswith('delete car'):
@@ -356,8 +366,8 @@ def handle_bot_command(command, channel, user):
 	NAMES = get_names()
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = user)
 	USERNAME = user['user']['profile']['display_name']
-
-	print('command = ', command)
+	command = command.lower()
+	
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, command)
 	if direct_mention:
@@ -371,13 +381,13 @@ def handle_bot_command(command, channel, user):
 
 	# list of all cars and who has them
 	if command.startswith('car list'):
-		inventory = car_list()
-		response = inventory
+		reply = car_list()
+		response = reply
 
 	# list of all names
 	elif (command.startswith('names list')) or (command.startswith('name list')):
-		names =  names_list()
-		response = names
+		reply = names_list()
+		response = reply
 
 	# find car
 	elif (command.startswith('who has the')) or (command.startswith('where is the')):
