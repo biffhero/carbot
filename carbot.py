@@ -15,15 +15,11 @@ MENTION_REGEX = '<@(|[WU].+?)>(.*)'
 EXAMPLE_COMMAND = "*'who has ___'* to find a car or *'commands list'*"
 
 def at_user(direct_mention, command):
-	print('direct mention')
 	at_user_id = direct_mention.group(1)
 	at_user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = at_user_id)
 	at_username = at_user['user']['profile']['display_name']
-	print('at_username ' , at_username)
 	x = '<@' + at_user_id + '>'
-	print('x= ' ,x)
 	command = command.replace(x, at_username)
-	print('new message = ' + command)
 	return command
 
 def get_names():
@@ -129,16 +125,33 @@ def delete_car(INVENTORY, command):
 			response = 'Do not have that car in inventory'
 	return response
 
-def delete_name(NAMES, command):
+def delete_name(NAMES, INVENTORY, command):
 	for name in NAMES:
 		if command.startswith('delete name ' + name):
-			NAMES.remove(name)
-			update_names(NAMES)
-			response = 'Deleted name ' + name + ' from the name list'
+			owned_cars = ''
+			for car in INVENTORY:
+				if INVENTORY[car] == name:
+					owned_cars += car + ' '
+			if owned_cars == '':
+				NAMES.remove(name)
+				update_names(NAMES)
+				response = 'Deleted name ' + name + ' from the name list'
+			else:
+				response = 'Cannot delete that name because ' + name + ' currently has the following: ' + owned_cars
 			break
 		else:
 			response = 'I do not know that name'
 	return response
+
+	# for name in NAMES:
+	# 	if command.startswith('delete name ' + name):
+	# 		NAMES.remove(name)
+	# 		update_names(NAMES)
+	# 		response = 'Deleted name ' + name + ' from the name list'
+	# 		break
+	# 	else:
+	# 		response = 'I do not know that name'
+	# return response
 
 def update_I(INVENTORY, NAMES, username, command):
 	for name in NAMES:
@@ -249,12 +262,14 @@ def handle_messages(event):
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = event['user'])
 	username = user['user']['profile']['display_name']
 	message = event['text']
-	message = message.lower()
+	# message = message.lower()
 
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, message)
 	if direct_mention:
 		message = at_user(direct_mention, message)
+
+	message = message.lower()
 
 	# command list
 	if message.startswith('commands list'):
@@ -278,7 +293,7 @@ def handle_messages(event):
 
 	# delete name
 	elif message.startswith('delete name'):
-		reply = delete_name(NAMES, message)
+		reply = delete_name(NAMES, INVENTORY, message)
 		response = reply
 
 	# update inventory - checkout
@@ -366,12 +381,14 @@ def handle_bot_command(command, channel, user):
 	NAMES = get_names()
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = user)
 	USERNAME = user['user']['profile']['display_name']
-	command = command.lower()
+	# command = command.lower()
 	
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, command)
 	if direct_mention:
 		command = at_user(direct_mention, command)
+
+	command = command.lower()
 
 	# Default response is help text for the user
 	default_response = "Not sure what you mean. Try {} for a list of different commands".format(EXAMPLE_COMMAND)
@@ -438,7 +455,7 @@ def handle_bot_command(command, channel, user):
 	
 	# delete name
 	elif command.startswith('delete name'):
-		reply = delete_name(NAMES, command)
+		reply = delete_name(NAMES, INVENTORY, command)
 		response = reply
 
 	# command list
