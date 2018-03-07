@@ -143,16 +143,6 @@ def delete_name(NAMES, INVENTORY, command):
 			response = 'I do not know that name'
 	return response
 
-	# for name in NAMES:
-	# 	if command.startswith('delete name ' + name):
-	# 		NAMES.remove(name)
-	# 		update_names(NAMES)
-	# 		response = 'Deleted name ' + name + ' from the name list'
-	# 		break
-	# 	else:
-	# 		response = 'I do not know that name'
-	# return response
-
 def update_I(INVENTORY, NAMES, username, command):
 	for name in NAMES:
 		if name == username:
@@ -234,7 +224,10 @@ def update_owner(INVENTORY, NAMES, command):
 def find_car(INVENTORY, command):
 	for car in INVENTORY:
 		if (command.startswith('who has the ' + car)) or (command.startswith('where is the ' + car)):
-			response = INVENTORY[car] + ' has the ' + car
+			if INVENTORY[car] == '':
+				response = 'Nobody currrently has the ' + car
+			else:
+				response = INVENTORY[car] + ' has the ' + car
 			break
 		else:
 			response = 'That car is not on the car list'
