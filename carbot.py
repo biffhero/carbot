@@ -147,13 +147,10 @@ def update_I(INVENTORY, NAMES, username, command):
 	for name in NAMES:
 		if name == username:
 			for car in INVENTORY:
-				print('car ' + car)
-				if INVENTORY[car] == username:
-					print('you have car')
-					response = 'You currently have the ' + car + '. It must be returned before you can take another car.'
-					break
-				elif (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
-					print('found car')
+				# if INVENTORY[car] == username:
+				# 	response = 'You currently have the ' + car + '. It must be returned before you can take another car.'
+				# 	break
+				if (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
 					INVENTORY[car] = username
 					update_inventory(INVENTORY)
 					response = 'Recorded ' + username + ' took the ' + car
@@ -163,6 +160,12 @@ def update_I(INVENTORY, NAMES, username, command):
 			break
 		else:
 			response = 'I do not know you'
+	if response.startswith('Recorded'):
+		claimed = '. I show that you now have the following:'
+		for car in INVENTORY:
+			if INVENTORY[car] == username:
+				claimed += ' ' + car
+		response += claimed
 	return response
 
 def return_carI(INVENTORY, NAMES, username, command):
@@ -215,12 +218,10 @@ def update_owner(INVENTORY, NAMES, command):
 	for name in NAMES:
 		if (command.startswith(name + ' has the')) or (command.startswith(name + ' took the')):
 			for car in INVENTORY:
-				if INVENTORY[car] == name:
-					response = name + ' currently has the ' + car + '. It must be returned first.'
-					break
-				elif (command.startswith(name + ' has the ' + car)) or (command.startswith(name + ' took the ' + car)):
+				if (command.startswith(name + ' has the ' + car)) or (command.startswith(name + ' took the ' + car)):
 					INVENTORY[car] = name
 					update_inventory(INVENTORY)
+					owner = name
 					response = 'Recorded ' + name + ' has the ' + car
 					break
 				else:
@@ -228,6 +229,12 @@ def update_owner(INVENTORY, NAMES, command):
 			break
 		else:
 			response = 'I do not know that name'
+	if response.startswith('Recorded'):
+		owned = '. I show that ' + owner + ' now has the following:'
+		for car in INVENTORY:
+			if INVENTORY[car] == owner:
+				owned += ' ' + car
+		response += owned
 	return response
 
 def find_car(INVENTORY, command):
