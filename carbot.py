@@ -147,13 +147,13 @@ def update_I(INVENTORY, NAMES, username, command):
 	for name in NAMES:
 		if name == username:
 			for car in INVENTORY:
-				# if INVENTORY[car] == username:
-				# 	response = 'You currently have the ' + car + '. It must be returned before you can take another car.'
-				# 	break
 				if (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
-					INVENTORY[car] = username
-					update_inventory(INVENTORY)
-					response = 'Recorded ' + username + ' took the ' + car
+					if INVENTORY[car] == '':
+						INVENTORY[car] = username
+						update_inventory(INVENTORY)
+						response = 'Recorded ' + username + ' took the ' + car
+					else:
+						response = INVENTORY[car] + ' currently has the ' + car + '. It must be returned before you can take it.'
 					break
 				else:
 					response = 'That car is not in the car list'
@@ -219,10 +219,13 @@ def update_owner(INVENTORY, NAMES, command):
 		if (command.startswith(name + ' has the')) or (command.startswith(name + ' took the')):
 			for car in INVENTORY:
 				if (command.startswith(name + ' has the ' + car)) or (command.startswith(name + ' took the ' + car)):
-					INVENTORY[car] = name
-					update_inventory(INVENTORY)
-					owner = name
-					response = 'Recorded ' + name + ' has the ' + car
+					if INVENTORY[car] == '':
+						INVENTORY[car] = name
+						update_inventory(INVENTORY)
+						owner = name
+						response = 'Recorded ' + name + ' has the ' + car
+					else:
+						response = INVENTORY[car] + ' currently has the ' + car + '. It must be returned before anyone can take it.'
 					break
 				else:
 					response = 'Cannot find that car'
