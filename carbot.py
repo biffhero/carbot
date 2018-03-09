@@ -147,7 +147,9 @@ def update_I(INVENTORY, NAMES, username, command):
 	for name in NAMES:
 		if name == username:
 			for car in INVENTORY:
-				if (command.startswith('I took the ' + car)) or (command.startswith('I have the ' + car)):
+				print('car ' + car)
+				if (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
+					print('found car')
 					INVENTORY[car] = username
 					update_inventory(INVENTORY)
 					response = 'Recorded ' + username + ' took the ' + car
@@ -288,14 +290,15 @@ def handle_messages(event):
 	elif message.startswith('delete name'):
 		reply = delete_name(NAMES, INVENTORY, message)
 		response = reply
-
+# ********
 	# update inventory - checkout
-	elif (message.startswith('I took')) or (message.startswith('I have')):
+	elif (message.startswith('i took')) or (message.startswith('i have')):
+		print('I took ', username)
 		reply = update_I(INVENTORY, NAMES, username, message)
 		response = reply
 
 	# update inventory - checkin
-	elif message.startswith('I returned the'):
+	elif message.startswith('i returned the'):
 		reply = return_carI(INVENTORY, NAMES, username, message)
 		response = reply
 
@@ -410,12 +413,12 @@ def handle_bot_command(command, channel, user):
 		response = reply
 
 	# update INVENTORY
-	elif (command.startswith('I have')) or (command.startswith('I took')):
+	elif (command.startswith('i have')) or (command.startswith('i took')):
 		reply = update_I(INVENTORY, NAMES, USERNAME, command)
 		response = reply
 
 	# update inventory - checkin
-	elif command.startswith('I returned'):
+	elif command.startswith('i returned'):
 		reply = return_carI(INVENTORY, NAMES, USERNAME, command)
 		response = reply
 
