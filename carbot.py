@@ -148,7 +148,11 @@ def update_I(INVENTORY, NAMES, username, command):
 		if name == username:
 			for car in INVENTORY:
 				print('car ' + car)
-				if (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
+				if INVENTORY[car] == username:
+					print('you have car')
+					response = 'You currently have the ' + car + '. It must be returned before you can take another car.'
+					break
+				elif (command.startswith('i took the ' + car)) or (command.startswith('i have the ' + car)):
 					print('found car')
 					INVENTORY[car] = username
 					update_inventory(INVENTORY)
@@ -165,7 +169,7 @@ def return_carI(INVENTORY, NAMES, username, command):
 	for name in NAMES:
 		if name == username:
 			for car in INVENTORY:
-				if command.startswith('I returned the ' + car):
+				if command.startswith('i returned the ' + car):
 					if INVENTORY[car] == username:
 						INVENTORY[car] = None
 						update_inventory(INVENTORY)
@@ -211,7 +215,10 @@ def update_owner(INVENTORY, NAMES, command):
 	for name in NAMES:
 		if (command.startswith(name + ' has the')) or (command.startswith(name + ' took the')):
 			for car in INVENTORY:
-				if (command.startswith(name + ' has the ' + car)) or (command.startswith(name + ' took the ' + car)):
+				if INVENTORY[car] == name:
+					response = name + ' currently has the ' + car + '. It must be returned first.'
+					break
+				elif (command.startswith(name + ' has the ' + car)) or (command.startswith(name + ' took the ' + car)):
 					INVENTORY[car] = name
 					update_inventory(INVENTORY)
 					response = 'Recorded ' + name + ' has the ' + car
@@ -293,7 +300,6 @@ def handle_messages(event):
 # ********
 	# update inventory - checkout
 	elif (message.startswith('i took')) or (message.startswith('i have')):
-		print('I took ', username)
 		reply = update_I(INVENTORY, NAMES, username, message)
 		response = reply
 
