@@ -176,7 +176,7 @@ def return_carI(INVENTORY, NAMES, username, command):
 					if INVENTORY[car] == username:
 						INVENTORY[car] = None
 						update_inventory(INVENTORY)
-						response = 'Recoreded ' + username + ' returned the ' + car
+						response = 'Recorded ' + username + ' returned the ' + car
 						break
 					else:
 						if len(INVENTORY[car]) == 0:
