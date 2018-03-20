@@ -45,7 +45,7 @@ def update_names(NAMES):
 	path = 'names.txt'
 	update_file = open(path, 'w')
 	for name in NAMES:
-		update_file.write(name + '\n')
+		update_file.write(name.lower() + '\n')
 	update_file.close()
 
 def update_inventory(INVENTORY):
@@ -53,9 +53,9 @@ def update_inventory(INVENTORY):
 	update_file = open(path, 'w')
 	for key in INVENTORY:
 		if INVENTORY[key] == None:
-			update_file.write(key + '-' + '\n')
+			update_file.write(key.lower() + '-' + '\n')
 		else:
-			update_file.write(key + '-' + INVENTORY[key] + '\n')
+			update_file.write(key.lower() + '-' + INVENTORY[key].lower() + '\n')
 	update_file.close()
 
 def car_list():
@@ -274,7 +274,6 @@ def handle_messages(event):
 	user = slack_client.api_call('users.info', token = os.environ.get('SLACK_BOT_TOKEN'), user = event['user'])
 	username = user['user']['profile']['display_name']
 	message = event['text']
-	# message = message.lower()
 
 	# replace @user_id with username in message
 	direct_mention = re.search(MENTION_REGEX, message)
@@ -307,7 +306,7 @@ def handle_messages(event):
 	elif message.startswith('delete name'):
 		reply = delete_name(NAMES, INVENTORY, message)
 		response = reply
-# ********
+
 	# update inventory - checkout
 	elif (message.startswith('i took')) or (message.startswith('i have')):
 		reply = update_I(INVENTORY, NAMES, username, message)
